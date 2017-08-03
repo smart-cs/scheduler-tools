@@ -1,21 +1,17 @@
-"""
-Utility Module
-
-"""
-
+"""Provides various functions for handling UBC course schedule HTML scraping"""
 import re
 
 import requests
 import bs4
 
 def extract_field(field, url_endpoint, default=None):
-    """ Extrat a field from an URL endpoint.
+    """Extrat a field from an URL endpoint.
 
     Args:
-        field (str): Name of the field to extract.
+        field (str): Name of the field to extract. Supports 'course', 'department'.
         url_endpoint (str): URL endpoint.
     Returns:
-        str: Value of the 'field' or 'default' if not found.
+        str: Value of the 'field' or default if not found.
     """
 
     if field is 'course':
@@ -28,8 +24,7 @@ def extract_field(field, url_endpoint, default=None):
     return match.group(1) if match else default
 
 class CourseScraperUBC:
-    """ A UBC Course Schedule Scrapping Session.
-    """
+    """UBC Course Schedule Scrapping Session."""
 
     BASE_URL = 'https://courses.students.ubc.ca'
     REST_BASE_URL = BASE_URL + '/cs/main?'
@@ -37,6 +32,11 @@ class CourseScraperUBC:
     TNAME = 'subjareas'
 
     def __init__(self, sessyr, sesscd):
+        """
+        Args:
+            sessyr (str): Academic year.
+            sesscd (str): Academic session - 'W' for Winter, 'S' for Summer.
+        """
         self.rsession = requests.Session()
         self.rsession.params = {
             'pname' : self.PNAME,
@@ -47,10 +47,11 @@ class CourseScraperUBC:
 
 
     def is_full(self, course):
-        """ Checks if a course with section is full or not.
+        """Checks if a course with section is full or not.
+
         Args:
             course (str): In the form of <DEPARTMENT> <COURSE #> <SECTION #>.
-                          e.g. CPSC 221 101
+                e.g. CPSC 221 101
         Returns:
             boolean: True if the course is full, False otherwise.
         Raises:
@@ -80,7 +81,7 @@ class CourseScraperUBC:
 
 
     def dept_links(self):
-        """ Get the deparments that are offering courses in this year and session.
+        """Get the deparments that are offering courses in this year and session.
 
         Returns:
             list: List of links to UBC departments.
@@ -99,7 +100,7 @@ class CourseScraperUBC:
 
 
     def course_links_from_dept(self, department, in_format='name'):
-        """ See what courses a department offers.
+        """See what courses a department offers.
 
         Args:
             department (str): Department name or link.
@@ -130,7 +131,7 @@ class CourseScraperUBC:
 
 
     def extract_course_info(self, course, in_format='name'):
-        """ Extracts information about a course such as CPSC 221.
+        """Extracts information about a course such as CPSC 221.
 
         Args:
             course (str): Course name or link.
@@ -174,12 +175,12 @@ class CourseScraperUBC:
         Args:
             course_sections_info (list): List of tuples of course section information.
         Returns:
-            dict: dictionary of 'section name (str)' to data about the section
+            dict: dictionary of 'section name (str)' to data about the section.
         """
         course_info = {}
 
         for section_info in course_sections_info:
-            (status, section, activity, term, interval, days, start_time, end_time) = section_info
+            (status, section, activity, term, interval, days, start_time, end_time, comments) = section_info
 
             # new section
             if section != '':

@@ -1,6 +1,4 @@
-"""
-Loads UBC Courses data into Firebase.
-"""
+"""Loads UBC Course data into Firebase."""
 
 import json
 import time
@@ -10,7 +8,7 @@ import requests
 import util
 
 def scrape_course_from(year, session):
-    """ Scrape information from UBC Course Schedule Website and store it onto Firebase.
+    """Scrape information from UBC Course Schedule Website and store it onto Firebase.
 
     Args:
         year (str): Academic year.
@@ -36,8 +34,11 @@ def scrape_course_from(year, session):
         # be nice to UBC server
         time.sleep(1)
 
-if __name__ == '__main__':
+def main():
     YEAR = '2017'
-    SESSION = 'S'
+    SESSION = 'W'
 
     scrape_course_from(YEAR, SESSION)
+
+if __name__ == '__main__':
+    main()
