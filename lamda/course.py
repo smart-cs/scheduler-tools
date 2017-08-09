@@ -32,7 +32,7 @@ class ClassSession(object):
 
     @staticmethod
     def create_from_section(section):
-        """Returns a list of ClassSessions given a section of a course.
+        """Returns a generator of ClassSessions given a section of a course.
 
         Args:
             section (dict): Requires the keys 'term', 'days', 'start_time', 'end_time'
@@ -76,13 +76,13 @@ class Course(object):
 
     @staticmethod
     def create_all(course_name, coursedb):
-        """Creates a list of all sections of a course.
+        """Creates a generator of all sections of a course.
 
         Args:
             course_name (str): Name of the course.
             coursedb (dict): Database storing information about all courses.
         Returns:
-            generator: generator of Course each representing a unique section of the course.
+            generator: Generator of Course each representing a unique section of the course.
         """
         dept, cnum = course_name.split(' ')
         return (Course(sec, list(ClassSession.create_from_section(info)))
