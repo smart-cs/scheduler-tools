@@ -84,12 +84,12 @@ class Course(object):
             course_name (str): Name of the course.
             coursedb (dict): Database storing information about all courses.
         Returns:
-            list: list of Course each representing a unique section of the course.
+            generator: generator of Course each representing a unique section of the course.
         """
         dept, cnum = course_name.split(' ')
-        return [Course(sec, ClassSession.create_from_section(info))
+        return (Course(sec, ClassSession.create_from_section(info))
                 for sec, info in coursedb[dept][course_name].items()
-                if info['activity'][0] == 'Lecture']
+                if info['activity'][0] == 'Lecture')
 
 
 class ScheduleCreator:
