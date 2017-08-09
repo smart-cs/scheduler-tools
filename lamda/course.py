@@ -38,18 +38,16 @@ class ClassSession(object):
             section (dict): Requires the keys 'term', 'days', 'start_time', 'end_time'
                 mapping to lists, lists must have the same length.
         Returns:
-            list: List of ClassSession representing the course section.
+            generator: Generator of ClassSession representing the course section.
         """
         terms = section['term']
         days_list = section['days']
         start_times = section['start_time']
         end_times = section['end_time']
 
-        result = []
-        for i, days in enumerate(days_list):
-            for day in days.split(' '):
-                result.append(ClassSession(terms[i], day, start_times[i], end_times[i]))
-        return result
+        return (ClassSession(terms[i], day, start_times[i], end_times[i])
+                for i, days in enumerate(days_list)
+                for day in days.split(' '))
 
 
 class Course(object):
@@ -87,7 +85,7 @@ class Course(object):
             generator: generator of Course each representing a unique section of the course.
         """
         dept, cnum = course_name.split(' ')
-        return (Course(sec, ClassSession.create_from_section(info))
+        return (Course(sec, list(ClassSession.create_from_section(info)))
                 for sec, info in coursedb[dept][course_name].items()
                 if info['activity'][0] == 'Lecture')
 
