@@ -1,4 +1,5 @@
 """Representation of UBC schedules and courses."""
+import json
 
 class ClassSession(object):
     """Holds time information about about a single class.
@@ -79,7 +80,7 @@ class Course(object):
         """Creates a generator of all sections of a course.
 
         Args:
-            course_name (str): Name of the course.
+            course_name (str): Name of the course in the form of <DEPT> <LEVEL>.
             coursedb (dict): Database storing information about all courses.
         Returns:
             generator: Generator of Course each representing a unique section of the course.
@@ -94,7 +95,7 @@ class ScheduleCreator:
     """Provides static methods to get Schedules."""
     @staticmethod
     def create_from_course_names(course_names, coursedb):
-        """Returns a list of all non-conflicting schedules given a list of input course names."""
+        """Returns a response where the body contains of all non-conflicting schedules (course_name is an array)."""
         schs = []
         for name in course_names:
             schs = append_perm(schs, Course.create_all(name, coursedb))
@@ -122,25 +123,18 @@ class ScheduleCreator:
             'isBase64Encoded': False,
             'statusCode': 200,
             'headers': {'Content-Type': 'application/json'},
-            'body': str(body)
+            'body': json.dumps(body)
         }
 
-def append_perm(rlist, new_items):
+def append_perm(iterable_lists, new_items):
     """Accumulates new permutations and returns it.
 
     Args:
-        rlist (list): List to append to.
-        new_items (list): Items to permutate into exisiting list.
+        iterable (iterable): Iterable of lists to append to.
+        new_items (list): Items to permutate into exisiting Iterable.
     Returns
-        list: Accumalted items.
+        generator: Accumalted items.
     """
-    if not rlist:
-        return [[new_item] for new_item in new_items]
-
-    result_rlist = []
-    for r in rlist:
-        for new_item in new_items:
-            new_r = list(r)
-            new_r.append(new_item)
-            result_rlist.append(new_r)
-    return result_rlist
+    if not iterable_lists:
+        return ([new_item] for new_item in new_items)
+    return (list(l) + [new_item] for l in iterable_lists for new_item in new_items)
