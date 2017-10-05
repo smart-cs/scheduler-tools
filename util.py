@@ -4,6 +4,9 @@ import re
 import requests
 import bs4
 
+COURSE_RE = re.compile(r'course=(\d{2,3}\w?)')
+COURSE_RE = re.compile(r'dept=(\w{3,4})')
+
 def extract_field(field, url_endpoint, default=None):
     """Extrat a field from an URL endpoint.
 
@@ -15,13 +18,14 @@ def extract_field(field, url_endpoint, default=None):
     """
 
     if field is 'course':
-        match = re.search(r'course=(\d{2,3}\w?)', url_endpoint)
+        match = COURSE_RE.search(url_endpoint)
     elif field is 'department':
-        match = re.search(r'dept=(\w{3,4})', url_endpoint)
+        match = COURSE_RE.search(url_endpoint)
     else:
         return default
 
     return match.group(1) if match else default
+
 
 class CourseScraperUBC:
     """UBC Course Schedule Scrapping Session."""
@@ -104,7 +108,7 @@ class CourseScraperUBC:
 
         Args:
             department (str): Department name or link.
-            in_format (str): Format of 'deparment' param.
+            in_format (str): Format of 'deparment' param. Supports 'name' or 'link'.
         Returns:
             tuple: (course_name, dict)
                 inner dict of (section_name, dict of
@@ -135,7 +139,7 @@ class CourseScraperUBC:
 
         Args:
             course (str): Course name or link.
-            in_format (str): Format of 'course' param.
+            in_format (str): Format of 'course' param. Supports 'name' or 'link'.
         Returns:
             tuple : (course_name, dict)
                 inner dict of (section_name, dict of
