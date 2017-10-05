@@ -1,5 +1,5 @@
 #!/bin/bash
-PY_SOURCE="../../lambda_handler.py ../../course.py"
+PY_SOURCE="../../lambda_handler.py ../../course.py ../../schedulecreator.py"
 OUTPUT_ZIP="../../returnSchedule.zip"
 AWS_FUNCTION_NAME="returnSchedule"
 

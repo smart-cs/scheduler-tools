@@ -42,7 +42,7 @@ class ClassSession(object):
             generator: Generator of ClassSession representing the course section.
         """
         terms = section['term']
-        days_list = section['days']
+        days_list = section['days'] # e.g. Mon Wed Fri
         start_times = section['start_time']
         end_times = section['end_time']
 
@@ -55,7 +55,7 @@ class Course(object):
     """Represents a UBC course.
 
     Attributes:
-        name (str): Name of the course.
+        name (str): Name of the course <DEPT> <LEVEL> <SECTION>.
         class_sessions (list): List of ClassSession.
     """
     def __init__(self, name, class_sessions):
@@ -89,52 +89,3 @@ class Course(object):
         return (Course(sec, list(ClassSession.create_from_section(info)))
                 for sec, info in coursedb[dept][course_name].items()
                 if info['activity'][0] == 'Lecture')
-
-
-class ScheduleCreator:
-    """Provides static methods to get Schedules."""
-    @staticmethod
-    def create_from_course_names(course_names, coursedb):
-        """Returns a response where the body contains of all non-conflicting schedules (course_name is an array)."""
-        schs = []
-        for name in course_names:
-            schs = append_perm(schs, Course.create_all(name, coursedb))
-        return ScheduleCreator.wrap_body_for_awsgatewayapi(
-            [ScheduleCreator.jsonify(sch) for sch in schs if ScheduleCreator.no_conflicts(sch)])
-
-    @staticmethod
-    def no_conflicts(potential_schedule):
-        """Returns True if a schedule has no conflicts."""
-        for course1 in potential_schedule:
-            for course2 in potential_schedule:
-                if course1.conflict(course2) and course1 is not course2:
-                    return False
-        return True
-
-    @staticmethod
-    def jsonify(sch):
-        """Returns a list of JSON Serializable course data."""
-        return [course.json() for course in sch]
-
-    @staticmethod
-    def wrap_body_for_awsgatewayapi(body):
-        """Creates a valid response for AWS Gateway API given a response body."""
-        return {
-            'isBase64Encoded': False,
-            'statusCode': 200,
-            'headers': {'Content-Type': 'application/json'},
-            'body': json.dumps(body)
-        }
-
-def append_perm(iterable_lists, new_items):
-    """Accumulates new permutations and returns it.
-
-    Args:
-        iterable (iterable): Iterable of lists to append to.
-        new_items (list): Items to permutate into exisiting Iterable.
-    Returns
-        generator: Accumalted items.
-    """
-    if not iterable_lists:
-        return ([new_item] for new_item in new_items)
-    return (list(l) + [new_item] for l in iterable_lists for new_item in new_items)
