@@ -88,4 +88,6 @@ class Course(object):
         dept, cnum = course_name.split(' ')
         return (Course(sec, list(ClassSession.create_from_section(info)))
                 for sec, info in coursedb[dept][course_name].items()
-                if info['activity'][0] == 'Lecture')
+                if (info['activity'][0] == 'Lecture' or
+                    info['activity'][0] == 'Seminar' or
+                    info['activity'][0] == 'Studio'))
