@@ -20,16 +20,19 @@ def scrape_course_from(year, session):
     scraper = util.CourseScraperUBC(year, session)
 
     for dept_link in scraper.dept_links():
-        dept = {}
+        dept_name = util.extract_field('department', dept_link)
 
+        dept = {}
         for course_link in scraper.course_links_from_dept(dept_link, in_format='link'):
             name, info = scraper.extract_course_info(course_link, in_format='link')
             dept[name] = info
 
         json_encoded = json.JSONEncoder().encode(dept)
 
-        dept_name = util.extract_field('department', dept_link)
-        rsession.put(base_url + dept_name + '.json', data=json_encoded)
+        url_endpoint = base_url + dept_name + '.json'
+        r = rsession.patch(url_endpoint, data=json_encoded)
+        if r.status_code != 200:
+            print("FAILED:", r.url)
 
         # be nice to UBC server
         time.sleep(1)
