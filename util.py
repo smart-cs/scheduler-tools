@@ -167,7 +167,7 @@ class CourseScraperUBC:
 
         response.raise_for_status()
         soup = bs4.BeautifulSoup(response.text, "lxml")
-        trs = soup.find_all('tr', attrs={"class" : ["'section1'", "section"]})
+        trs = soup.find_all('tr', attrs={"class" : ["'section3'", "'section2'", "'section1'", "section"]})
 
         # tuple: (status, section, activity, term, interval, days, start_time, end_time, comments)
         course_sections_info = [tuple(td.text.strip() for td in tr.find_all('td')) for tr in trs]
