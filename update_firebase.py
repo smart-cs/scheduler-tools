@@ -23,7 +23,7 @@ def scrape_from(year, session):
 
     base_url = f'https://{FIREBASE_PROJECT}.firebaseio.com/{year}{session}/'
     rsession = requests.Session()
-    scrapper = util.CourseScraperUBC(year, session)
+    scrapper = util.CourseScrapperUBC(year, session)
 
     for dept_link in scrapper.dept_links():
         dept_name = util.extract_field('department', dept_link)
