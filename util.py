@@ -28,7 +28,7 @@ def extract_field(field, url_endpoint, default=None):
     return match.group(1) if match else default
 
 
-class CourseScraperUBC:
+class CourseScrapperUBC:
     """UBC Course Schedule Scrapping Session."""
 
     BASE_URL = 'https://courses.students.ubc.ca'
