@@ -7,6 +7,7 @@ import requests
 
 import util
 
+
 def scrape_course_from(year, session):
     """Scrape information from UBC Course Schedule Website and store it onto Firebase.
 
@@ -37,11 +38,13 @@ def scrape_course_from(year, session):
         # be nice to UBC server
         time.sleep(1)
 
+
 def main():
     YEAR = '2017'
     SESSION = 'W'
 
     scrape_course_from(YEAR, SESSION)
+
 
 if __name__ == '__main__':
     main()

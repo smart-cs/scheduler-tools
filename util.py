@@ -7,6 +7,7 @@ import bs4
 COURSE_RE = re.compile(r'course=(\d{2,3}\w?)')
 DEPARTMENT_RE = re.compile(r'dept=(\w{3,4})')
 
+
 def extract_field(field, url_endpoint, default=None):
     """Extrat a field from an URL endpoint.
 
@@ -43,12 +44,11 @@ class CourseScraperUBC:
         """
         self.rsession = requests.Session()
         self.rsession.params = {
-            'pname' : self.PNAME,
-            'tname' : self.TNAME,
-            'sessyr' : sessyr,
-            'sesscd' : sesscd
+            'pname': self.PNAME,
+            'tname': self.TNAME,
+            'sessyr': sessyr,
+            'sesscd': sesscd
         }
-
 
     def is_full(self, course):
         """Checks if a course with section is full or not.
@@ -70,10 +70,10 @@ class CourseScraperUBC:
             raise ValueError("String must be in the form of '<DEPARTMENT> <COURSE #> <SECTION #>'")
 
         url_params = {
-            'req' : '5',
-            'dept' : parsed[0],
-            'course' : parsed[1],
-            'section' : parsed[2]
+            'req': '5',
+            'dept': parsed[0],
+            'course': parsed[1],
+            'section': parsed[2]
         }
 
         response = self.rsession.get(self.REST_BASE_URL, params=url_params)
@@ -83,7 +83,6 @@ class CourseScraperUBC:
             raise Exception("URL doesn't contain seat information: {}".format(response.url))
         return 'Note: this section is full' in response.text
 
-
     def dept_links(self):
         """Get the deparments that are offering courses in this year and session.
 
@@ -91,7 +90,7 @@ class CourseScraperUBC:
             list: List of links to UBC departments.
         """
 
-        url_params = {'req' : '0'}
+        url_params = {'req': '0'}
 
         response = self.rsession.get(self.REST_BASE_URL, params=url_params)
         response.raise_for_status()
@@ -101,7 +100,6 @@ class CourseScraperUBC:
         return [self.BASE_URL + a['href']
                 for a in soup.find_all('a', href=True)
                 if extract_field('department', a['href'])]
-
 
     def course_links_from_dept(self, department, in_format='name'):
         """See what courses a department offers.
@@ -118,8 +116,8 @@ class CourseScraperUBC:
         """
         if in_format == 'name':
             url_params = {
-                'req' : '1',
-                'dept' : department
+                'req': '1',
+                'dept': department
             }
             response = self.rsession.get(self.REST_BASE_URL, params=url_params)
         elif in_format == 'link':
@@ -132,7 +130,6 @@ class CourseScraperUBC:
         return [self.BASE_URL + a['href']
                 for a in soup.find_all('a', href=True)
                 if extract_field('course', a['href'])]
-
 
     def extract_course_info(self, course, in_format='name'):
         """Extracts information about a course such as CPSC 221.
@@ -152,8 +149,8 @@ class CourseScraperUBC:
             course_name = course
             tmp = course.split()
             query_params = {
-                'dept' : tmp[0],
-                'course' : tmp[1]
+                'dept': tmp[0],
+                'course': tmp[1]
             }
             response = self.rsession.get(self.REST_BASE_URL, params=query_params)
         elif in_format == 'link':
@@ -167,12 +164,11 @@ class CourseScraperUBC:
 
         response.raise_for_status()
         soup = bs4.BeautifulSoup(response.text, "lxml")
-        trs = soup.find_all('tr', attrs={"class" : ["'section3'", "'section2'", "'section1'", "section"]})
+        trs = soup.find_all('tr', attrs={"class": ["'section3'", "'section2'", "'section1'", "section"]})
 
         # tuple: (status, section, activity, term, interval, days, start_time, end_time, comments)
         course_sections_info = [tuple(td.text.strip() for td in tr.find_all('td')) for tr in trs]
         return (course_name, self._parse_course_sections(course_sections_info))
-
 
     def _parse_course_sections(self, course_sections_info):
         """
@@ -191,12 +187,12 @@ class CourseScraperUBC:
                 last_section = section
                 course_info[last_section] = {
                     'status': status,
-                    'activity':[activity],
-                    'term':[term],
+                    'activity': [activity],
+                    'term': [term],
                     'interval': interval,
-                    'days':[days],
-                    'start_time':[start_time],
-                    'end_time':[end_time]
+                    'days': [days],
+                    'start_time': [start_time],
+                    'end_time': [end_time]
                 }
             # attached to the last section
             else:
