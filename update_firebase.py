@@ -13,7 +13,7 @@ YEAR = '2017'
 SESSION = 'W'
 
 
-def scrape_course_from(year, session):
+def scrape_from(year, session):
     """Scrape information from UBC Course Schedule Website and store it onto Firebase.
 
     Args:
@@ -45,7 +45,7 @@ def scrape_course_from(year, session):
 
 
 def main():
-    scrape_course_from(YEAR, SESSION)
+    scrape_from(YEAR, SESSION)
 
 
 if __name__ == '__main__':
