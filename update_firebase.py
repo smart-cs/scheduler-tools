@@ -29,7 +29,7 @@ def scrape_all():
         dept_name = util.extract_field('department', dept_link)
         dept = get_dept(dept_name)
         print(JSON_ENCODER.encode(dept))
-        # upload(dept_name, JSON_ENCODER.encode(dept))
+        upload(dept_name, JSON_ENCODER.encode(dept))
         # Be nice to the UBC server
         sleep(1)
 
