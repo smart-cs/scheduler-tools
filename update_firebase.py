@@ -1,20 +1,20 @@
 #!/usr/bin/env python
-
 """Loads UBC Course data into Firebase."""
+
 from json import JSONEncoder
 from time import sleep
 
 import requests
 
-import util
+import ubc
 
 FIREBASE_PROJECT = 'ubc-coursedb'
-YEAR = '2017'
-SESSION = 'W'
+YEAR = '2018'
+SESSION = 'S'
 BASE_URL = f'https://{FIREBASE_PROJECT}.firebaseio.com/{YEAR}{SESSION}'
 
 RSESSION = requests.Session()
-SCRAPPER = util.CourseScrapperUBC(YEAR, SESSION)
+SCRAPPER = ubc.CourseScrapper(YEAR, SESSION)
 JSON_ENCODER = JSONEncoder()
 
 
@@ -26,7 +26,7 @@ def scrape_all():
         session (str): Academic session - 'W' for Winter, 'S' for Summer.
     """
     for dept_link in SCRAPPER.dept_links():
-        dept_name = util.extract_field('department', dept_link)
+        dept_name = ubc.extract_field('department', dept_link)
         dept = get_dept(dept_name)
         print(JSON_ENCODER.encode(dept))
         upload(dept_name, JSON_ENCODER.encode(dept))
@@ -44,7 +44,8 @@ def get_dept(department_name):
     """
     dept = {}
     for course_link in SCRAPPER.course_links_from_dept(department_name, in_format='name'):
-        name, info = SCRAPPER.extract_course_info(course_link, in_format='link')
+        name, info = SCRAPPER.extract_course_info(
+            course_link, in_format='link')
         dept[name] = info
     return dept
 

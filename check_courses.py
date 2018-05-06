@@ -3,7 +3,8 @@ import json
 
 import twilio.rest
 
-import util
+import ubc
+
 
 def main():
     with open('secret.json', 'r') as f:
@@ -18,19 +19,20 @@ def main():
         raise AssertionError("Provide Twilio API sid and token")
 
     TWILIO_CLIENT = twilio.rest.Client(TWILLIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-
     WANTED_COURSES = ('STAT 251 L1B', 'STAT 251 L1D', 'CPSC 320 921')
-    scraper = util.CourseScraperUBC('2017', 'S')
+    scrapper = ubc.CourseScrapper('2017', 'S')
 
     for course in WANTED_COURSES:
-        if scraper.is_full(course):
+        if scrapper.is_full(course):
             print(course + ' is FULL :(')
-        else:
-            print(course + ' has a free spot!')
-            message = TWILIO_CLIENT.messages.create(
-                to=MY_NUMBER,
-                from_=TWILIO_NUMBER,
-                body="{} a free spot!".format(course))
+            return
+
+        print(course + ' has a free spot!')
+        TWILIO_CLIENT.messages.create(
+            to=MY_NUMBER,
+            from_=TWILIO_NUMBER,
+            body="{} a free spot!".format(course)
+        )
 
 
 if __name__ == '__main__':

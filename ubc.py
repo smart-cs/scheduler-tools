@@ -1,8 +1,8 @@
 """Provides various functions for handling UBC course schedule HTML scraping"""
 import re
 
-import requests
 import bs4
+import requests
 
 COURSE_RE = re.compile(r'course=(\d{2,3}\w?)')
 DEPARTMENT_RE = re.compile(r'dept=(\w{3,4})')
@@ -31,7 +31,7 @@ def extract_field(field, url_endpoint, default=None):
     return match.group(1) if match else default
 
 
-class CourseScrapperUBC:
+class CourseScrapper(object):
     """UBC Course Schedule Scrapping Session."""
 
     BASE_URL = 'https://courses.students.ubc.ca'
@@ -70,7 +70,8 @@ class CourseScrapperUBC:
 
         # TODO: better error checking here
         if len(parsed) != 3:
-            raise ValueError("String must be in the form of '<DEPARTMENT> <COURSE #> <SECTION #>'")
+            raise ValueError(
+                "String must be in the form of '<DEPARTMENT> <COURSE #> <SECTION #>'")
 
         url_params = {
             'req': '5',
@@ -83,7 +84,8 @@ class CourseScrapperUBC:
         response.raise_for_status()
 
         if 'Total Seats Remaining' not in response.text:
-            raise Exception("URL doesn't contain seat information: {}".format(response.url))
+            raise Exception(
+                "URL doesn't contain seat information: {}".format(response.url))
         return 'Note: this section is full' in response.text
 
     def dept_links(self):
@@ -168,7 +170,8 @@ class CourseScrapperUBC:
                 'dept': tmp[0],
                 'course': tmp[1]
             }
-            response = self.rsession.get(self.REST_BASE_URL, params=query_params)
+            response = self.rsession.get(
+                self.REST_BASE_URL, params=query_params)
         elif in_format == 'link':
             course_name = '{0} {1}'.format(
                 extract_field('department', course),
@@ -180,10 +183,12 @@ class CourseScrapperUBC:
 
         response.raise_for_status()
         soup = bs4.BeautifulSoup(response.text, "lxml")
-        trs = soup.find_all('tr', attrs={"class": ["'section3'", "'section2'", "'section1'", "section"]})
+        trs = soup.find_all(
+            'tr', attrs={"class": ["'section3'", "'section2'", "'section1'", "section"]})
 
         # tuple: (status, section, activity, term, interval, days, start_time, end_time, comments)
-        course_sections_info = [tuple(td.text.strip() for td in tr.find_all('td')) for tr in trs]
+        course_sections_info = [tuple(td.text.strip()
+                                      for td in tr.find_all('td')) for tr in trs]
         parsed_info = self._parse_course_sections(course_sections_info)
         parsed_info.update(self._extract_course_meta_from_soup(soup))
         return (course_name, parsed_info)
@@ -234,7 +239,8 @@ class CourseScrapperUBC:
         course_info = {}
 
         for section_info in course_sections_info:
-            (status, section, activity, term, interval, days, start_time, end_time, comments) = section_info
+            (status, section, activity, term, interval, days,
+             start_time, end_time, comments) = section_info
 
             # new section
             if section != '':

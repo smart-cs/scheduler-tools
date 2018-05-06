@@ -4,47 +4,66 @@ from os.path import isfile
 
 import requests
 
-YEAR = '2017'
-SESSION = 'W'
-LOCAL_DB_PATH = f'{YEAR}{SESSION}-db.json'
 
+def get_db(year, session):
+    db_path = f'{year}{session}-db.json'
+    if not isfile(db_path):
+        _download_db(year, session, db_path)
 
-def load_local_db():
-    if not isfile(LOCAL_DB_PATH):
-        download_db()
-
-    with open(LOCAL_DB_PATH) as f:
+    with open(db_path) as f:
         return json.load(f)
 
 
-def download_db():
-    YEAR = '2017'
-    SESSION = 'W'
-    FIREBASE_DB_URL = f'https://ubc-coursedb.firebaseio.com/{YEAR}{SESSION}.json'
-    r = requests.get(FIREBASE_DB_URL)
-    print(f'GET {r.url} => {r.status_code}')
-    if r.status_code != 200:
+def _download_db(year, session, destination):
+    FIREBASE_DB_URL = f'https://ubc-coursedb.firebaseio.com/{year}{session}.json'
+
+    resp = requests.get(FIREBASE_DB_URL)
+
+    print(f'GET {resp.url} => {resp.status_code}')
+
+    if resp.status_code != 200:
         raise Exception('error downloading database')
 
-    with open(LOCAL_DB_PATH, 'w') as f:
-        f.write(r.text)
+    with open(destination, 'w') as f:
+        f.write(resp.text)
 
 
-def get_activity_types(db):
-    result = {
+def unique_activity_types(db):
+    return {
         info['activity'][0]
         for dept in db
         for course in db[dept]
         for section, info in db[dept][course].items()
-        if len(info['activity']) > 0
+        if info['activity']
     }
-    return result
+
+
+def sections_without_start_time(db):
+    return {
+        section: info
+        for dept in db
+        for course in db[dept]
+        for section, info in db[dept][course].items()
+        if not info['start_time'] or not info['start_time'][0]
+    }
+
+
+def sections_with_more_than_one_activity_type(db):
+    return {
+        section: info
+        for dept in db
+        for course in db[dept]
+        for section, info in db[dept][course].items()
+        if len(info['activity']) > 1
+    }
 
 
 def main():
-    db = load_local_db()
-    for a in sorted(get_activity_types(db)):
-        print(a)
+    YEAR = '2017'
+    SESSION = 'W'
+    db = get_db(YEAR, SESSION)
+    data = sections_with_more_than_one_activity_type(db)
+    print(json.dumps(data))
 
 
 if __name__ == '__main__':
