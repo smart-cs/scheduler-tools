@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import json
 from os.path import isfile
 
@@ -38,6 +38,16 @@ def unique_activity_types(db):
     }
 
 
+def unique_days_types(db):
+    return {
+        info['days'][0]
+        for dept in db
+        for course in db[dept]
+        for section, info in db[dept][course].items()
+        if info['days']
+    }
+
+
 def sections_without_start_time(db):
     return {
         section: info
@@ -62,8 +72,12 @@ def main():
     YEAR = '2017'
     SESSION = 'W'
     db = get_db(YEAR, SESSION)
-    data = sections_with_more_than_one_activity_type(db)
-    print(json.dumps(data))
+    for days in unique_days_types(db):
+        print(days)
+    # for activity in unique_activity_types(db):
+    #     print(activity)
+    # data = sections_with_more_than_one_activity_type(db)
+    # print(json.dumps(data))
 
 
 if __name__ == '__main__':
