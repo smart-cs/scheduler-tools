@@ -41,7 +41,7 @@ def scrape(year, session):
 def upload(upload_file):
     """ Uploads local data to Firebase."""
     URL = 'https://ubc-coursedb.firebaseio.com/{}'.format(upload_file.name)
-    resp = requests.post(URL, json=json.load(upload_file))
+    resp = requests.put(URL, json=json.load(upload_file))
     resp.raise_for_status()
     click.echo('uploaded: ' + upload_file.name)
 
