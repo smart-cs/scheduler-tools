@@ -35,9 +35,9 @@ class CourseScrapper(object):
     """UBC Course Schedule Scrapping Session."""
 
     BASE_URL = 'https://courses.students.ubc.ca'
-    REST_BASE_URL = BASE_URL + '/cs/main?'
+    REST_BASE_URL = BASE_URL + '/cs/courseschedule?'
     PNAME = 'subjarea'
-    TNAME = 'subjareas'
+    TNAME = 'subj-course'
 
     def __init__(self, sessyr, sesscd):
         """
@@ -74,7 +74,6 @@ class CourseScrapper(object):
                 "String must be in the form of '<DEPARTMENT> <COURSE #> <SECTION #>'")
 
         url_params = {
-            'req': '5',
             'dept': parsed[0],
             'course': parsed[1],
             'section': parsed[2]
@@ -95,7 +94,7 @@ class CourseScrapper(object):
             list: List of links to UBC departments.
         """
 
-        url_params = {'req': '0'}
+        url_params = {'tname': 'subj-all-departments'}
 
         response = self.rsession.get(self.REST_BASE_URL, params=url_params)
         response.raise_for_status()
@@ -113,15 +112,13 @@ class CourseScrapper(object):
             department (str): Department name or link.
             in_format (str): Format of 'deparment' param. Supports 'name' or 'link'.
         Returns:
-            tuple: (course_name, dict)
-                inner dict of (section_name, dict of
-                    status, activity, term, interval, days, start_time, end_time)
+            list: List of links to UBC courses.
         Raises:
             ValueError: Invalid 'in_format'.
         """
         if in_format == 'name':
             url_params = {
-                'req': '1',
+                'tname': 'subj-department',
                 'dept': department
             }
             response = self.rsession.get(self.REST_BASE_URL, params=url_params)
@@ -167,6 +164,7 @@ class CourseScrapper(object):
             course_name = course
             tmp = course.split()
             query_params = {
+                'tname': 'subj-course',
                 'dept': tmp[0],
                 'course': tmp[1]
             }
@@ -184,8 +182,7 @@ class CourseScrapper(object):
         response.raise_for_status()
         soup = bs4.BeautifulSoup(response.text, "lxml")
         trs = soup.find_all(
-            'tr', attrs={"class": ["'section3'", "'section2'", "'section1'", "section"]})
-
+            'tr', attrs={"class": ["section3", "section2", "section1", "section"]})
         # tuple: (status, section, activity, term, interval, days, start_time, end_time, comments)
         course_sections_info = [tuple(td.text.strip()
                                       for td in tr.find_all('td')) for tr in trs]
