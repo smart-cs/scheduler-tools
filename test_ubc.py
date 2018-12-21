@@ -1,6 +1,16 @@
 import ubc
 
 class TestCourseScrapper:
+    def test_dept_links(self):
+        scrapper = ubc.CourseScrapper('2018', 'W')
+        links = scrapper.dept_links()
+        assert len(links) > 200
+
+    def test_course_links_from_dept(self):
+        scrapper = ubc.CourseScrapper('2018', 'W')
+        links = scrapper.course_links_from_dept('CPSC')
+        assert len(links) > 50
+
     def test_extract_course_info(self):
         scrapper = ubc.CourseScrapper('2018', 'W')
         cname, cdata = scrapper.extract_course_info('CPSC 221')
