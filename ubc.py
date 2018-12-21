@@ -35,9 +35,9 @@ class CourseScrapper(object):
     """UBC Course Schedule Scrapping Session."""
 
     BASE_URL = 'https://courses.students.ubc.ca'
-    REST_BASE_URL = BASE_URL + '/cs/main?'
+    REST_BASE_URL = BASE_URL + '/cs/courseschedule?'
     PNAME = 'subjarea'
-    TNAME = 'subjareas'
+    TNAME = 'subj-course'
 
     def __init__(self, sessyr, sesscd):
         """
@@ -184,8 +184,7 @@ class CourseScrapper(object):
         response.raise_for_status()
         soup = bs4.BeautifulSoup(response.text, "lxml")
         trs = soup.find_all(
-            'tr', attrs={"class": ["'section3'", "'section2'", "'section1'", "section"]})
-
+            'tr', attrs={"class": ["section3", "section2", "section1", "section"]})
         # tuple: (status, section, activity, term, interval, days, start_time, end_time, comments)
         course_sections_info = [tuple(td.text.strip()
                                       for td in tr.find_all('td')) for tr in trs]
